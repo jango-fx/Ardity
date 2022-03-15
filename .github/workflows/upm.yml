@@ -16,7 +16,7 @@ jobs:
         git branch -d upm &> /dev/null || echo upm branch not found
         git subtree split -P "$PKG_ROOT" -b upm
         git checkout upm
-        if [[ -d "Samples" ]]; then
+        if [[ -d "Scenes" ]]; then
           git mv Scenes Samples~
           rm -f Scenes.meta
           git config --global user.name 'github-bot'
