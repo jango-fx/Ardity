@@ -26,26 +26,43 @@ using System.Threading;
 public class SerialController : MonoBehaviour
 {
     [Tooltip("Port name with which the SerialPort object will be created.")]
+    [HideInInspector]
     public string portName = "COM3";
 
     [Tooltip("Baud rate that the serial device is using to transmit data.")]
+    [HideInInspector]
     public int baudRate = 9600;
 
     [Tooltip("Reference to an scene object that will receive the events of connection, " +
              "disconnection and the messages from the serial device.")]
+    [HideInInspector]
     public GameObject messageListener;
 
     [Tooltip("After an error in the serial communication, or an unsuccessful " +
              "connect, how many milliseconds we should wait.")]
+    [HideInInspector]
     public int reconnectionDelay = 1000;
 
-    [Tooltip("Maximum number of unread data messages in the queue. " +
-             "New or old (depending on \"Drop Old Message\" configuration) messages will be discarded.")]
-    public int maxUnreadMessages = 1;
+    [Tooltip("Maximum number of unread data messages in the queue.\n" +
+             "When overflowing, messages will be discarded depending on \"Drop Old Message\" value")]
+    [HideInInspector]
+    public int messageQueueSize = 1;
+
+    [Tooltip("How the controller handles the message queue.\n" + 
+             "Poll the oldest, newest or all messages from the queue.")]
+    [HideInInspector]
+    public QueueBehaviour queueBehaviour;
+    public enum QueueBehaviour
+    {
+        onlyOldest,
+        onlyNewest,
+        allMessages
+    }
 
     [Tooltip("When the queue is full, prefer dropping the oldest message in the queue " +
              "instead of the new incoming message. Use this if you prefer to keep the " +
              "newest messages from the port.")]
+    [HideInInspector]
     public bool dropOldMessage;
 
     // Constants used to mark the start and end of a connection. There is no
@@ -71,7 +88,7 @@ public class SerialController : MonoBehaviour
         serialThread = new SerialThreadLines(portName,
                                              baudRate,
                                              reconnectionDelay,
-                                             maxUnreadMessages,
+                                             messageQueueSize,
                                              dropOldMessage);
         thread = new Thread(new ThreadStart(serialThread.RunForever));
         thread.Start();
@@ -107,9 +124,7 @@ public class SerialController : MonoBehaviour
 
     // ------------------------------------------------------------------------
     // Polls messages from the queue that the SerialThread object keeps. Once a
-    // message has been polled it is removed from the queue. There are some
-    // special messages that mark the start/end of the communication with the
-    // device.
+    // message has been polled it is removed from the queue.
     // ------------------------------------------------------------------------
     void Update()
     {
@@ -119,10 +134,24 @@ public class SerialController : MonoBehaviour
             return;
 
         // Read the next message from the queue
-        string message = (string) serialThread.ReadMessage();
+        string message = (string)serialThread.ReadMessage();
         if (message == null)
             return;
 
+        switch (queueBehaviour)
+        {
+            case QueueBehaviour.onlyOldest: { SendUnityMessage(message); break; }
+            case QueueBehaviour.onlyNewest: { ReadOnlyNewest(message); break; }
+            case QueueBehaviour.allMessages: { ReadAllMessages(message); break; }
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // Calls different handlers depending on serial message type
+    // ------------------------------------------------------------------------
+    void SendUnityMessage(string message)
+    {
+        // Debug.Log("Polling Message");
         // Check if the message is plain data or a connect/disconnect event.
         if (ReferenceEquals(message, SERIAL_DEVICE_CONNECTED))
             messageListener.SendMessage("OnConnectionEvent", true);
@@ -133,13 +162,45 @@ public class SerialController : MonoBehaviour
     }
 
     // ------------------------------------------------------------------------
+    // Calls message handlers for every message in the queue
+    // ------------------------------------------------------------------------
+    void ReadAllMessages(string message)
+    {
+
+        // Debug.Log("Polling All Messages");
+        int count = 0;
+        while (message != null)
+        {
+            count++;
+            SendUnityMessage(message);
+            message = (string)serialThread.ReadMessage();
+        }
+        // Debug.Log(count + " messages in queue");
+    }
+
+    // ------------------------------------------------------------------------
+    // Calls message handlers only for the newest message in the queue
+    // ------------------------------------------------------------------------
+    void ReadOnlyNewest(string message)
+    {
+        // Debug.Log("Polling Newest Message (oldest in queue: "+message+")");
+        string lastMessage = null;
+        while (message != null)
+        {
+            lastMessage = message;
+            message = (string)serialThread.ReadMessage();
+        }
+        SendUnityMessage(lastMessage);
+    }
+
+    // ------------------------------------------------------------------------
     // Returns a new unread message from the serial device. You only need to
     // call this if you don't provide a message listener.
     // ------------------------------------------------------------------------
     public string ReadSerialMessage()
     {
         // Read the next message from the queue
-        return (string) serialThread.ReadMessage();
+        return (string)serialThread.ReadMessage();
     }
 
     // ------------------------------------------------------------------------
