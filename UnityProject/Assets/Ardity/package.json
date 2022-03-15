@@ -8,5 +8,12 @@
     "Serial",
     "Arduino"
   ],
-  "documentationUrl": "https://ardity.dwilches.com"
+  "documentationUrl": "https://ardity.dwilches.com",
+  "samples": [
+    {
+      "displayName": "Example Scenes",
+      "description": "Example scenes for various use cases",
+      "path": "Samples~/"
+    }
+  ]
 }
