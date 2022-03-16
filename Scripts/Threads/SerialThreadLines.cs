@@ -22,11 +22,13 @@ using System.IO.Ports;
 public class SerialThreadLines : AbstractSerialThread
 {
     public SerialThreadLines(string portName,
-                             int baudRate,
-                             int delayBeforeReconnecting,
-                             int maxUnreadMessages,
-                             bool dropOldMessage)
-        : base(portName, baudRate, delayBeforeReconnecting, maxUnreadMessages, true, dropOldMessage)
+                        int baudRate,
+                        int delayBeforeReconnecting,
+                        int maxUnreadMessages,
+                        bool dropOldMessage,
+                        bool dtrEnable = false,
+                        bool rtsEnable = false)
+        : base(portName, baudRate, delayBeforeReconnecting, maxUnreadMessages, true, dropOldMessage, dtrEnable, rtsEnable)
     {
     }
 

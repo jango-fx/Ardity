@@ -65,6 +65,12 @@ public class SerialController : MonoBehaviour
     [HideInInspector]
     public bool dropOldMessage;
 
+    [Tooltip("DTR switch\nGranular serial config for certain connections.")]
+    [HideInInspector]
+    public bool dtrEnable = false;
+    [Tooltip("RTS switch\nGranular serial config for certain connections.")]
+    [HideInInspector]
+    public bool rtsEnable = false;
     // Constants used to mark the start and end of a connection. There is no
     // way you can generate clashing messages from your serial device, as I
     // compare the references of these strings, no their contents. So if you
@@ -89,7 +95,9 @@ public class SerialController : MonoBehaviour
                                              baudRate,
                                              reconnectionDelay,
                                              messageQueueSize,
-                                             dropOldMessage);
+                                             dropOldMessage,
+                                             dtrEnable,
+                                             rtsEnable);
         thread = new Thread(new ThreadStart(serialThread.RunForever));
         thread.Start();
     }
