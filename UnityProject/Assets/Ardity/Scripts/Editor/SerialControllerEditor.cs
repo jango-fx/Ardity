@@ -18,6 +18,8 @@ public class SerialControllerEditor : Editor
     SerializedProperty _messageQueueSize = null;
     SerializedProperty _queueBehaviour = null;
     SerializedProperty _dropOldMessage = null;
+    SerializedProperty _dtrEnable = null;
+    SerializedProperty _rtsEnable = null;
 
     void Awake()
     {
@@ -36,6 +38,8 @@ public class SerialControllerEditor : Editor
         _messageQueueSize = serializedObject.FindProperty("messageQueueSize");
         _queueBehaviour = serializedObject.FindProperty("queueBehaviour");
         _dropOldMessage = serializedObject.FindProperty("dropOldMessage");
+        _dtrEnable = serializedObject.FindProperty("dtrEnable");
+        _rtsEnable = serializedObject.FindProperty("rtsEnable");
     }
 
     public override void OnInspectorGUI()
@@ -55,6 +59,8 @@ public class SerialControllerEditor : Editor
         EditorGUILayout.PropertyField(_messageQueueSize);
         EditorGUILayout.PropertyField(_queueBehaviour);
         EditorGUILayout.PropertyField(_dropOldMessage);
+        EditorGUILayout.PropertyField(_dtrEnable);
+        EditorGUILayout.PropertyField(_rtsEnable);
         serializedObject.ApplyModifiedProperties();
     }
 
