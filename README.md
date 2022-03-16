@@ -2,31 +2,36 @@
 	<img src="docs/images/full-logo.png" 
          alt="Ardity: Arduino + Unity"3
          title="Ardity: Arduino + Unity">
-    <h1>Arduino + Unity communication made easy</h1>
+<p>(previously known as: SerialCommUnity)</p>
+    <h1>Arduino + Unity</h1>
 </div>
 
-And not just Arduino: any hardware/software that communicates over serial (COM) ports !
+Ardity is a Unity package to make serial communication easy.
 
-WebSite URL: https://ardity.dwilches.com
+Website: https://ardity.dwilches.com
 
-***(Previously known as: SerialCommUnity)***
 
-Instructions
-============
+## Install Package from GitHub URL
 
-There are three scenes that show how to read/write data from/to a serial device.
+In Unity
+- open `Window` › `Package Manager`
+- select `＋` › `Add package from git URL…`
+- use `https://github.com/jango-fx/Unity-Ardity-Package.git#upm` as URL.
+
+
+## How To Use the Package
+
+There several sample scenes that show how to read/write data from/to a serial device.
 There is a prefab that you need to add to your scene, this prefab will do all the thread management, queue synchronization and exception handling for you.
 
 If you need a program to test your Unity scene I have created the following Arduino program that sends a heartbeat message each 2 seconds.
 It also recognizes two input messages and reacts to them, this is for bidirectional communication for the scene "DemoSceneUserPoll_ReadWrite".
 So if you want to use that scene just run it and press the keys 'A' or 'Z' to see what you Arduino has to say about it.
 
-
-Sample Arduino Program
-======================
+### Sample Arduino Program
 This sample communicates with any of the scenes called: `DemoScene_AutoPoll*` or `DemoScene_UserPoll*`.
 
-```cs
+```cpp
 unsigned long last_time = 0;
 
 void setup()
@@ -56,13 +61,13 @@ void loop()
 }
 ```
 
-Sample with Tear-Down function
-======================
+
+### Sample with Tear-Down function
 This sample has a tear-down function (use it with the scene `DemoScene_SampleTearDown`),
 it will be executed when the Unity program stops. This sample expects you to be using an Arduino UNO,
 if not, change the number of the pin to which the LED is connected.
 
-```cs
+```cpp
 unsigned long last_time = 0;
 int ledPin = 13;
 
@@ -112,10 +117,10 @@ void loop()
 }
 ```
 
-Sample with custom delimiter
-======================
 
-```cs
+### Sample with custom delimiter
+
+```cpp
 // This is the separator configured in Unity
 #define SEPARATOR 255
 
@@ -151,9 +156,8 @@ void loop()
 }
 ```
 
-Documentation
-==
 
+## Documentation
 Ardity is quite simple to use. You can find the setup guide in PDF format [here](https://github.com/dwilches/Ardity/raw/master/UnityProject/Ardity%20-%20Setup%20Guide.pdf).
 
 There is also a series of in-depth tutorials by the [Interface Lab](https://medium.com/interface-lab) from the University [NYU Shanghai](https://shanghai.nyu.edu/), please take a look here:
@@ -161,25 +165,17 @@ There is also a series of in-depth tutorials by the [Interface Lab](https://medi
 - [Working with many sensors](https://medium.com/interface-lab/working-with-many-sensors-9029556ad3c0)
 - [Bidirectional communication](https://medium.com/interface-lab/bidirectional-communication-a1c11ff62a25)
 
-COM port names
-==
-To open a COM port from `Ardity` you need to use one of these naming conventions:
-* `COM1`, `COM2`, ... for COM1 through COM9
-* `\\.\COM10`, `\\.\COM11`, ... for COM10 and up
 
-Can Ardity be used with Bluetooth devices?
-==
-
+### Use Ardity with Bluetooth devices
 Yes, it's possible.
 You need to configure your device to be seen in your operating system as a COM port.
 Instructions to do so vary from device to device and from OS to OS.
 Once you have it configured, use that COM port with Ardity, which will treat it as just another serial device.
 
-Common Issues
-============================================
 
-###  The type or namespace name 'Ports' does not exist in the namespace 'System.IO'
+## Common Issues
 
+###  "The type or namespace name 'Ports' does not exist in the namespace 'System.IO'"
 If you get this error:
 > Assets/Ardity/Scripts/SerialThread.cs(9,17): error CS0234: The type or namespace name 'Ports' does not exist in the namespace 'System.IO'. Are you missing an assembly reference?
 
@@ -187,22 +183,16 @@ Check the current "API Compatibility Level" of your Unity project. Go to `Edit -
 
 Also, some users have reported needing to manually add `System.IO.dll` to the project. If the above solution doesn't work for you, in Visual Studio go to `Project -> Add Reference -> Browse` and then select the file `System.IO.dll` from inside your .NET framework's folder. This file may be located at `C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework.NETFramework\v4.5\Facades\System.IO.dll`.
 
+
 ### Communication with some devices doesn't work out of the box
+Some users have reported needing to enable RtsEnable and DtsEnable in order to get Ardity to work with their devices. So if communication is not working for you, try enabling these the DRT/RTS options in the SerialController.
 
-Some users have reported needing to enable RtsEnable and DtsEnable in order to get Ardity to work with their devices. So if communication is not working for you, try enabling these options in [AbstractSerialThread](https://github.com/dwilches/Ardity/blob/master/UnityProject/Assets/Ardity/Scripts/Threads/AbstractSerialThread.cs#L198) just before the `serialPort.Open()` invocation:
-
-```
-serialPort.DtrEnable = true;
-serialPort.RtsEnable = true;
-```
 
 ### If Ardity works in the Editor but not outside of it
-
 Try changing the scripting backend from Mono to [IL2CPP](https://docs.unity3d.com/Manual/IL2CPP.html).
-    
-License
-=======
 
+
+## License
 This work is released under the [Creative Commons Attributions](https://creativecommons.org/licenses/by/2.0/) license.
 
 If you use this library please let me know, so I know my work has been useful to you :)
